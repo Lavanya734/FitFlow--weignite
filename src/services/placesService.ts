@@ -1,5 +1,4 @@
 
-
 export interface Restaurant {
   name: string;
   rating?: number;
@@ -166,3 +165,5 @@ export async function getUserLocation(): Promise<{ lat: number; lng: number }> {
     );
   });
 }
+
+

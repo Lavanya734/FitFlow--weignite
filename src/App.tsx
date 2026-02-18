@@ -11,12 +11,14 @@ import AuthPage from "./pages/AuthPage";
 import ProfileDashboard from "./pages/ProfileDashboard";
 import RecipesPage from "./pages/RecipesPage";
 import ModuleDetailPage from "./pages/ModuleDetailPage";
-import "./App.css"
+import "./App.css";
 import ModulesPage from "./pages/ModulesPage";
 import CommunityPage from "./pages/Community/CommunityPage";
 import ReelsPage from "./pages/Community/ReelsPage";
 import SearchPage from "./pages/Community/SearchPage";
 import ProfilePage from "./pages/Community/ProfilePage";
+import OnboardingQuestionnaire from "./pages/OnboardingQuestionnaire";
+import MyCyclePage from "./pages/MyCyclePage";
 // import SearchPage from "./pages/Community/SearchPage";
 // import ProfilePage from "./pages/Community/ProfilePage";
 
@@ -34,6 +36,7 @@ const App = () => (
           <Route path="/" element={<HomePage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/profile" element={<ProfileDashboard />} />
+          <Route path="/onboarding" element={<OnboardingQuestionnaire />} />
           <Route path="/exercises" element={<ExerciseSelection />} />
           <Route path="/exercise/:exerciseId" element={<ExercisePanel />} />
           <Route path="/recipes" element={<RecipesPage />} />
@@ -43,6 +46,7 @@ const App = () => (
           <Route path="/community/reels" element={<ReelsPage />} />
           <Route path="/community/search" element={<SearchPage />} />
           <Route path="/community/profile" element={<ProfilePage />} />
+          <Route path="/my-cycle" element={<MyCyclePage />} />
 
 
           <Route path="*" element={<NotFound />} />

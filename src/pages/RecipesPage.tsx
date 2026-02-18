@@ -19,18 +19,52 @@ import {
   Salad,
   Loader2,
 } from "lucide-react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import SpotifyEmbedPlayer from "@/components/SpotifyEmbedPlayer";
 import { useEffect, useState } from "react";
-// import { fetchHealthyRestaurants, getUserLocation, type Restaurant } from "@/services/placesService";
 import { fetchHealthyRestaurants,getUserLocation,type Restaurant } from "../services/placesService";
+interface RecipeItem {
+  id: number;
+  name: string;
+  image: string;
+  time: string;
+  difficulty: string;
+  calories: string;
+  description: string;
+  type: "cheat" | "healthy";
+  ingredients: string[];
+  steps: string[];
+  rating: number;
+}
+
+interface DietItem {
+  name: string;
+  description: string;
+  color: string;
+  carbs: number;
+  protein: number;
+  fat: number;
+  fibre: number;
+  missing: string;
+  addFoods: string;
+}
+
 const RecipesPage = () => {
   const [nearbyRestaurants, setNearbyRestaurants] = useState<Restaurant[]>([]);
   const [loadingRestaurants, setLoadingRestaurants] = useState(true);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [selectedRecipe, setSelectedRecipe] = useState<RecipeItem | null>(null);
+  const [selectedDiet, setSelectedDiet] = useState<DietItem | null>(null);
 
-  const cheatMeals = [
+  const cheatMeals: RecipeItem[] = [
     {
       id: 1,
       name: "Ultimate Burger Stack",
@@ -39,6 +73,23 @@ const RecipesPage = () => {
       difficulty: "Easy",
       calories: "850 cal",
       description: "Juicy beef patty with crispy bacon and melted cheese",
+      type: "cheat",
+      ingredients: [
+        "2 burger buns",
+        "2 beef patties or vegetarian patties",
+        "2 slices cheese",
+        "2 strips crispy bacon",
+        "Lettuce, tomato and onion",
+        "Sauce of your choice",
+      ],
+      steps: [
+        "Toast the burger buns lightly on a pan or grill.",
+        "Cook the patties until browned on both sides and cooked through.",
+        "Crisp the bacon in a pan until golden.",
+        "Layer bun, sauce, lettuce and patty with cheese and bacon.",
+        "Top with tomato, onion and the second bun, then serve warm.",
+      ],
+      rating: 4.5,
     },
     {
       id: 2,
@@ -48,6 +99,23 @@ const RecipesPage = () => {
       difficulty: "Medium",
       calories: "720 cal",
       description: "Homemade pizza with all your favorite toppings",
+      type: "cheat",
+      ingredients: [
+        "Pizza base or naan",
+        "Pizza sauce",
+        "Grated mozzarella",
+        "Sliced capsicum and onions",
+        "Olives and jalapeños",
+        "Your choice of protein or paneer",
+      ],
+      steps: [
+        "Preheat the oven to 220°C.",
+        "Spread pizza sauce evenly on the base.",
+        "Add vegetables and protein or paneer over the sauce.",
+        "Top with cheese and bake until the base is crisp and cheese melts.",
+        "Slice and serve hot with chilli flakes and oregano.",
+      ],
+      rating: 4.3,
     },
     {
       id: 3,
@@ -57,10 +125,27 @@ const RecipesPage = () => {
       difficulty: "Easy",
       calories: "420 cal",
       description: "Fudgy chocolate brownies with nuts",
+      type: "cheat",
+      ingredients: [
+        "Dark chocolate",
+        "Butter or ghee",
+        "Sugar",
+        "Flour",
+        "Eggs or flax eggs",
+        "Chopped nuts",
+      ],
+      steps: [
+        "Melt chocolate and butter together until smooth.",
+        "Whisk in sugar, then add eggs or flax eggs.",
+        "Fold in flour and nuts until just combined.",
+        "Pour into a lined tin and bake at 180°C for 18–20 minutes.",
+        "Cool slightly, slice into squares and serve.",
+      ],
+      rating: 4.7,
     },
   ];
 
-  const healthyMeals = [
+  const healthyMeals: RecipeItem[] = [
     {
       id: 1,
       name: "Quinoa Power Bowl",
@@ -69,6 +154,22 @@ const RecipesPage = () => {
       difficulty: "Easy",
       calories: "380 cal",
       description: "Nutrient-packed bowl with quinoa, vegetables, and protein",
+      type: "healthy",
+      ingredients: [
+        "Cooked quinoa",
+        "Mixed salad greens",
+        "Cherry tomatoes and cucumber",
+        "Roasted chickpeas or grilled paneer",
+        "Lemon juice and olive oil",
+      ],
+      steps: [
+        "Cook quinoa according to packet instructions and let it cool slightly.",
+        "Arrange salad greens in a bowl.",
+        "Top with quinoa, chopped vegetables and protein.",
+        "Drizzle with lemon juice, olive oil, salt and pepper.",
+        "Toss gently and serve fresh.",
+      ],
+      rating: 4.6,
     },
     {
       id: 2,
@@ -78,6 +179,22 @@ const RecipesPage = () => {
       difficulty: "Medium",
       calories: "320 cal",
       description: "Omega-3 rich salmon with roasted vegetables",
+      type: "healthy",
+      ingredients: [
+        "Salmon fillet",
+        "Olive oil",
+        "Salt, pepper and garlic",
+        "Lemon slices",
+        "Mixed vegetables for roasting",
+      ],
+      steps: [
+        "Marinate salmon with olive oil, garlic, salt and pepper.",
+        "Spread vegetables on a tray with a little oil and seasoning.",
+        "Roast vegetables at 200°C for 15–20 minutes.",
+        "Grill or pan-sear salmon for 3–4 minutes each side.",
+        "Serve salmon over vegetables with lemon on top.",
+      ],
+      rating: 4.4,
     },
     {
       id: 3,
@@ -87,31 +204,72 @@ const RecipesPage = () => {
       difficulty: "Easy",
       calories: "180 cal",
       description: "Refreshing blend of spinach, fruits, and protein",
+      type: "healthy",
+      ingredients: [
+        "A handful of spinach",
+        "1 small banana",
+        "Half an apple or mango",
+        "Milk or plant milk",
+        "Spoon of protein powder or seeds",
+      ],
+      steps: [
+        "Add spinach, fruit, liquid and protein powder to a blender.",
+        "Blend until smooth and creamy.",
+        "Adjust thickness with more liquid if needed.",
+        "Pour into a glass and serve chilled.",
+      ],
+      rating: 4.2,
     },
   ];
 
-  const diets = [
+  const diets: DietItem[] = [
     {
-      name: "Mediterranean",
-      description: "Heart-healthy with olive oil, fish, and vegetables",
-      color: "bg-blue-100 text-blue-800",
+      name: "Traditional Indian Vegetarian",
+      description: "Dal, sabzi, roti, rice and curd based home-style plates",
+      color: "bg-amber-100 text-amber-800",
+      carbs: 55,
+      protein: 15,
+      fat: 25,
+      fibre: 5,
+      missing: "Often low in protein if dal portions are small.",
+      addFoods: "Extra dal, paneer, curd, sprouts or lentil-based snacks.",
     },
     {
-      name: "Keto",
-      description: "Low-carb, high-fat for weight management",
+      name: "High-Protein Indian",
+      description: "More paneer, curd, lentils, eggs and lean meats with roti/rice",
       color: "bg-green-100 text-green-800",
+      carbs: 40,
+      protein: 30,
+      fat: 25,
+      fibre: 5,
+      missing: "Can miss out on colour and fibre if vegetables are low.",
+      addFoods: "2–3 handfuls of seasonal vegetables and fruits daily.",
     },
     {
-      name: "Vegan",
-      description: "Plant-based nutrition for health and environment",
+      name: "South Indian Plate",
+      description: "Idli, dosa, sambar, curd rice with plenty of rice-based meals",
+      color: "bg-blue-100 text-blue-800",
+      carbs: 60,
+      protein: 15,
+      fat: 20,
+      fibre: 5,
+      missing: "Sometimes low in protein and raw vegetables.",
+      addFoods: "Extra sambar, chutney with dals, salads and buttermilk.",
+    },
+    {
+      name: "Balanced Mediterranean",
+      description: "Olive oil, whole grains, vegetables, lentils, fish and nuts",
       color: "bg-purple-100 text-purple-800",
-    },
-    {
-      name: "Paleo",
-      description: "Whole foods based on ancestral eating patterns",
-      color: "bg-orange-100 text-orange-800",
+      carbs: 45,
+      protein: 20,
+      fat: 30,
+      fibre: 5,
+      missing: "May under-shoot total calories for heavy training days.",
+      addFoods: "Nuts, seeds and an extra carb source around workouts.",
     },
   ];
+
+  const indianDietColors = ["#f97316", "#22c55e", "#3b82f6", "#eab308"];
 
   const dishOfTheDay = {
     name: "Avocado Toast Supreme",
@@ -212,7 +370,17 @@ useEffect(() => {
                   </div>
                 </div>
               </div>
-              <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all">
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all"
+                onClick={() => {
+                  const recipeFromList =
+                    healthyMeals.find((m) => m.name === dishOfTheDay.name) ||
+                    cheatMeals.find((m) => m.name === dishOfTheDay.name);
+                  if (recipeFromList) {
+                    setSelectedRecipe(recipeFromList);
+                  }
+                }}
+              >
                 Get Recipe
               </Button>
             </div>
@@ -233,7 +401,8 @@ useEffect(() => {
               {cheatMeals.map((meal) => (
                 <div
                   key={meal.id}
-                  className="flex items-center gap-4 p-4 border border-border rounded-lg hover:border-primary/50 transition-all hover:shadow-md hover:scale-[1.02]"
+                  className="flex items-center gap-4 p-4 border border-border rounded-lg hover:border-primary/50 transition-all hover:shadow-md hover:scale-[1.02] cursor-pointer"
+                  onClick={() => setSelectedRecipe(meal)}
                 >
                   <div className="text-3xl">{meal.image}</div>
                   <div className="flex-1">
@@ -252,6 +421,9 @@ useEffect(() => {
                     size="sm"
                     variant="ghost"
                     className="hover:bg-red-50 hover:text-red-600 transition-all"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
                   >
                     <Heart className="h-4 w-4" />
                   </Button>
@@ -273,7 +445,8 @@ useEffect(() => {
               {healthyMeals.map((meal) => (
                 <div
                   key={meal.id}
-                  className="flex items-center gap-4 p-4 border border-border rounded-lg hover:border-secondary/50 transition-all hover:shadow-md hover:scale-[1.02]"
+                  className="flex items-center gap-4 p-4 border border-border rounded-lg hover:border-secondary/50 transition-all hover:shadow-md hover:scale-[1.02] cursor-pointer"
+                  onClick={() => setSelectedRecipe(meal)}
                 >
                   <div className="text-3xl">{meal.image}</div>
                   <div className="flex-1">
@@ -292,6 +465,9 @@ useEffect(() => {
                     size="sm"
                     variant="ghost"
                     className="hover:bg-green-50 hover:text-green-600 transition-all"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
                   >
                     <Heart className="h-4 w-4" />
                   </Button>
@@ -318,7 +494,8 @@ useEffect(() => {
               {diets.map((diet, index) => (
                 <div
                   key={index}
-                  className="p-4 border border-border rounded-lg hover:shadow-md hover:scale-[1.02] transition-all"
+                  className="p-4 border border-border rounded-lg hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer"
+                  onClick={() => setSelectedDiet(diet)}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold">{diet.name}</h4>
@@ -480,6 +657,141 @@ useEffect(() => {
           </CardContent>
         </Card>
       </div>
+      {selectedRecipe && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="max-w-lg w-full mx-4 rounded-3xl bg-card border border-border shadow-2xl">
+            <div className="flex items-center justify-between px-6 pt-5 pb-2">
+              <div className="flex items-center gap-3">
+                <div className="text-3xl">{selectedRecipe.image}</div>
+                <div>
+                  <h2 className="text-xl font-semibold">{selectedRecipe.name}</h2>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedRecipe.type === "cheat" ? "Cheat meal" : "Healthy meal"}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedRecipe(null)}
+                className="h-8 w-8 flex items-center justify-center rounded-full border border-border text-muted-foreground hover:bg-muted"
+              >
+                ×
+              </button>
+            </div>
+            <div className="px-6 pb-5 space-y-4">
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  {selectedRecipe.time}
+                </span>
+                <span className="flex items-center gap-1">
+                  <ChefHat className="h-4 w-4" />
+                  {selectedRecipe.difficulty}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Heart className="h-4 w-4 text-red-500" />
+                  {selectedRecipe.calories}
+                </span>
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-1">Ingredients</p>
+                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                  {selectedRecipe.ingredients.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-1">Steps</p>
+                <ol className="list-decimal list-inside text-sm text-muted-foreground space-y-1">
+                  {selectedRecipe.steps.map((step, index) => (
+                    <li key={index}>{step}</li>
+                  ))}
+                </ol>
+              </div>
+              <div className="border-t border-border pt-3 mt-2 text-xs text-muted-foreground">
+                <p className="mb-1">Community rating</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                    <span className="font-semibold text-foreground">
+                      {selectedRecipe.rating.toFixed(1)}
+                    </span>
+                    <span>/ 5</span>
+                  </div>
+                  <Button variant="outline" size="sm">
+                    Rate this recipe
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {selectedDiet && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="max-w-xl w-full mx-4 rounded-3xl bg-card border border-border shadow-2xl">
+            <div className="flex items-center justify-between px-6 pt-5 pb-2">
+              <div>
+                <h2 className="text-xl font-semibold">{selectedDiet.name}</h2>
+                <p className="text-xs text-muted-foreground">
+                  Typical macro distribution for a day on this pattern.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedDiet(null)}
+                className="h-8 w-8 flex items-center justify-center rounded-full border border-border text-muted-foreground hover:bg-muted"
+              >
+                ×
+              </button>
+            </div>
+            <div className="px-6 pb-6 space-y-4">
+              <p className="text-sm text-muted-foreground">{selectedDiet.description}</p>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: "Carbs", value: selectedDiet.carbs },
+                        { name: "Protein", value: selectedDiet.protein },
+                        { name: "Fat", value: selectedDiet.fat },
+                        { name: "Fibre", value: selectedDiet.fibre },
+                      ]}
+                      dataKey="value"
+                      nameKey="name"
+                      innerRadius={45}
+                      outerRadius={70}
+                      paddingAngle={2}
+                    >
+                      {indianDietColors.map((color, index) => (
+                        <Cell key={color} fill={color} />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip
+                      contentStyle={{
+                        borderRadius: 12,
+                        border: "1px solid hsl(var(--border))",
+                        boxShadow: "0 10px 30px rgba(15,23,42,0.18)",
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4 text-xs text-muted-foreground">
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-foreground">What it may miss</p>
+                  <p>{selectedDiet.missing}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-foreground">What you can add</p>
+                  <p>{selectedDiet.addFoods}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
