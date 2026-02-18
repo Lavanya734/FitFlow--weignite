@@ -13,7 +13,7 @@ export interface Restaurant {
   mapsUrl?: string;
 }
  
-const GEOAPIFY_KEY = import.meta.env.GEOAPIFY_KEY ;
+const GEOAPIFY_KEY = "18296eea673f471b86ea07c3ba81c028" ;
 
 const DEFAULT_COORDS = {
   lat: 28.7041,

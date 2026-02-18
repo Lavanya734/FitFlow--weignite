@@ -1,6 +1,6 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "./components/ui/toaster";
+import { Toaster as Sonner } from "./components/ui/sonner";
+import { TooltipProvider } from "./components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
@@ -13,6 +13,15 @@ import RecipesPage from "./pages/RecipesPage";
 import ModuleDetailPage from "./pages/ModuleDetailPage";
 import "./App.css"
 import ModulesPage from "./pages/ModulesPage";
+import CommunityPage from "./pages/Community/CommunityPage";
+import ReelsPage from "./pages/Community/ReelsPage";
+import SearchPage from "./pages/Community/SearchPage";
+import ProfilePage from "./pages/Community/ProfilePage";
+// import SearchPage from "./pages/Community/SearchPage";
+// import ProfilePage from "./pages/Community/ProfilePage";
+
+
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -28,9 +37,14 @@ const App = () => (
           <Route path="/exercises" element={<ExerciseSelection />} />
           <Route path="/exercise/:exerciseId" element={<ExercisePanel />} />
           <Route path="/recipes" element={<RecipesPage />} />
-          <Route path="/modules" element={<ModulesPage/>}/>
+          <Route path="/modules" element={<ModulesPage />} />
           <Route path="/modules/:moduleId" element={<ModuleDetailPage />} />
-        
+          <Route path="/community" element={<CommunityPage />} />
+          <Route path="/community/reels" element={<ReelsPage />} />
+          <Route path="/community/search" element={<SearchPage />} />
+          <Route path="/community/profile" element={<ProfilePage />} />
+
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
