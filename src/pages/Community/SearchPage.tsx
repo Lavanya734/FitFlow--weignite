@@ -1,36 +1,4 @@
-// import { useState } from "react";
-// import { Input } from "../../components/ui/input";
-// import { dummyPosts } from "../../data/dummyPosts";
-// import PostCard from "../../components/Postcard";
 
-// const SearchPage = () => {
-//   const [query, setQuery] = useState("");
-
-//   const filtered = dummyPosts.filter((post) =>
-//     post.user.name.toLowerCase().includes(query.toLowerCase())
-//   );
-
-//   return (
-//     <div className="min-h-screen bg-background p-6 max-w-3xl mx-auto">
-//       <h1 className="text-2xl font-bold mb-6">Search</h1>
-
-//       <Input
-//         placeholder="Search users..."
-//         value={query}
-//         onChange={(e) => setQuery(e.target.value)}
-//         className="mb-6"
-//       />
-
-//       <div className="space-y-6">
-//         {filtered.map((post) => (
-//           <PostCard key={post.id} post={post} />
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default SearchPage;
 
 import { useState } from "react";
 import { Input } from "../../components/ui/input";

@@ -1,38 +1,3 @@
-// import { dummyPosts } from "../../data/dummyPosts";
-// import PostCard from "../../components/Postcard";
-// import { Avatar, AvatarImage, AvatarFallback } from "../../components/ui/avatar";
-
-// const ProfilePage = () => {
-//   const userPosts = dummyPosts.filter(
-//     (post) => post.user.username === "fitgirl"
-//   );
-
-//   return (
-//     <div className="min-h-screen bg-background p-6 max-w-3xl mx-auto">
-//       <div className="flex items-center gap-6 mb-8">
-//         <Avatar className="h-20 w-20">
-//           <AvatarImage src={userPosts[0]?.user.avatar} />
-//           <AvatarFallback>F</AvatarFallback>
-//         </Avatar>
-
-//         <div>
-//           <h2 className="text-xl font-bold">fitgirl</h2>
-//           <p className="text-muted-foreground text-sm">
-//             Fitness enthusiast 💪 | Sharing daily workouts
-//           </p>
-//         </div>
-//       </div>
-
-//       <div className="space-y-6">
-//         {userPosts.map((post) => (
-//           <PostCard key={post.id} post={post} />
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ProfilePage;
 
 
 
