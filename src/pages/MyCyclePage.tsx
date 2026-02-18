@@ -775,12 +775,12 @@ const MyCyclePage = () => {
                   now. In an emergency, contact your local hospital or trusted
                   doctor directly.
                 </p>
-              ) : 
+              ) : (
               <p className="text-[11px] text-muted-foreground pt-1">
                 This list is informational only and not a substitute for medical
                 advice. Always follow local emergency guidance.
               </p>
-              }
+              )}
             </CardContent>
           </Card>
         </section>
