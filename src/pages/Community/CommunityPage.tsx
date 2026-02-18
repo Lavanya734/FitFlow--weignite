@@ -1,5 +1,5 @@
 import { useState } from "react";
-import PostCard from "../../components/Postcard";
+import PostCard from "../../components/PostCard";
 import { dummyPosts, CommunityPost } from "../../data/dummyPosts";
 import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "../../components/ui/avatar";

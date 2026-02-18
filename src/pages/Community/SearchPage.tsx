@@ -35,7 +35,7 @@
 import { useState } from "react";
 import { Input } from "../../components/ui/input";
 import { dummyPosts } from "../../data/dummyPosts";
-import PostCard from "../../components/Postcard";
+import PostCard from "../../components/PostCard";
 import { Search, TrendingUp, Users, Image as ImageIcon, X } from "lucide-react";
 import { Badge } from "../../components/ui/badge";
 

@@ -38,7 +38,7 @@
 
 import { useState } from "react";
 import { dummyPosts } from "../../data/dummyPosts";
-import PostCard from "../../components/Postcard";
+import PostCard from "../../components/PostCard";
 import { Avatar, AvatarImage, AvatarFallback } from "../../components/ui/avatar";
 import { Button } from "../../components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/tabs";
