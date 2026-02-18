@@ -3,11 +3,11 @@
 
 import { useState } from "react";
 import { dummyPosts } from "../../data/dummyPosts";
-import PostCard from "../../components/PostCard";
 import { Avatar, AvatarImage, AvatarFallback } from "../../components/ui/avatar";
 import { Button } from "../../components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/tabs";
 import { Grid3X3, List, MapPin, Link as LinkIcon, Calendar } from "lucide-react";
+import PostCard from "../../components/PostCard";
 
 const ProfilePage = () => {
   // Filtering for a specific user from your dummy data

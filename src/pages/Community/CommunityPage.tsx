@@ -1,5 +1,4 @@
 import { useState } from "react";
-import PostCard from "../../components/PostCard";
 import { dummyPosts, CommunityPost } from "../../data/dummyPosts";
 import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "../../components/ui/avatar";
@@ -8,6 +7,7 @@ import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Link } from "react-router-dom";
 import ReelsPage from "./ReelsPage";
+import PostCard from "../../components/PostCard";
 
 const categories = ["All", "Workout", "Tip", "Transformation"];
 
