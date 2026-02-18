@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,20 +20,62 @@ import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { authService } from "@/services/authService";
 
+const ONBOARDING_STORAGE_KEY_BASE = "fitflow_onboarding";
+
+interface OnboardingSnapshot {
+  heightCm?: string;
+  weightKg?: string;
+  age?: string;
+  diet?: string;
+  exerciseRoutine?: string;
+  medicalHistory?: string;
+  goals?: string;
+  gender?: string;
+}
+
+interface ExerciseRecommendation {
+  title: string;
+  reason: string;
+  target: "modules" | "exercises";
+  id: string;
+}
+
+interface DietRecommendation {
+  title: string;
+  reason: string;
+  target: "recipes";
+  dietTag?: string;
+}
+
 const ProfileDashboard = () => {
   const [user, setUser] = useState(authService.getUser());
   const [userStats, setUserStats] = useState({ totalWorkouts: 0, totalMinutes: 0, currentStreak: 0 });
   const [heatmapData, setHeatmapData] = useState<Array<{ activity_date: string; workout_count: number }>>([]);
+  const [onboarding, setOnboarding] = useState<OnboardingSnapshot | null>(null);
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Clear any stored authentication tokens/user data
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-
-    // Redirect to auth/login page
+    authService.logout();
     navigate('/auth');
   };
+
+  useEffect(() => {
+    try {
+      if (!user) {
+        setOnboarding(null);
+        return;
+      }
+      const key = `${ONBOARDING_STORAGE_KEY_BASE}_${user.id}`;
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        setOnboarding(JSON.parse(raw) as OnboardingSnapshot);
+      } else {
+        setOnboarding(null);
+      }
+    } catch {
+      setOnboarding(null);
+    }
+  }, [user]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -53,6 +95,116 @@ const ProfileDashboard = () => {
 
     loadData();
   }, [user]);
+
+  const exerciseRecommendations: ExerciseRecommendation[] = useMemo(() => {
+    if (!onboarding) return [];
+
+    const recs: ExerciseRecommendation[] = [];
+    const goals = (onboarding.goals || "").toLowerCase();
+    const routine = (onboarding.exerciseRoutine || "").toLowerCase();
+    const medical = (onboarding.medicalHistory || "").toLowerCase();
+
+    if (goals.includes("weight") || goals.includes("fat")) {
+      recs.push({
+        title: "Core Crusher",
+        reason: "You mentioned fat loss – this mix of planks and crunches supports core strength and calorie burn.",
+        target: "modules",
+        id: "core-crusher"
+      });
+    }
+
+    if (goals.includes("strength") || goals.includes("muscle")) {
+      recs.push({
+        title: "Upper Body Blast",
+        reason: "Strength and muscle gain pair well with focused upper body work.",
+        target: "modules",
+        id: "upper-body-blast"
+      });
+    }
+
+    if (goals.includes("legs") || goals.includes("lower body")) {
+      recs.push({
+        title: "Leg Day Power",
+        reason: "You highlighted lower body – this plan focuses on legs and glutes.",
+        target: "modules",
+        id: "leg-day-power"
+      });
+    }
+
+    if (recs.length === 0) {
+      recs.push({
+        title: "Upper Body Blast",
+        reason: "A balanced starting point if you are still exploring your goals.",
+        target: "modules",
+        id: "upper-body-blast"
+      });
+    }
+
+    if (medical.includes("knee") || medical.includes("back") || medical.includes("injury")) {
+      recs.push({
+        title: "Low-impact sessions",
+        reason: "You mentioned injuries – start with controlled reps and focus on form.",
+        target: "exercises",
+        id: "planks"
+      });
+    } else if (routine.includes("beginner") || routine.includes("new") || routine.includes("starting")) {
+      recs.push({
+        title: "Form-focused AI tracking",
+        reason: "You&apos;re new to training – AI-guided exercises help you build confidence safely.",
+        target: "exercises",
+        id: "bicep-curl"
+      });
+    }
+
+    return recs;
+  }, [onboarding]);
+
+  const dietRecommendations: DietRecommendation[] = useMemo(() => {
+    if (!onboarding) return [];
+
+    const recs: DietRecommendation[] = [];
+    const diet = (onboarding.diet || "").toLowerCase();
+    const goals = (onboarding.goals || "").toLowerCase();
+
+    if (diet.includes("vegan") || diet.includes("plant")) {
+      recs.push({
+        title: "Vegan and plant-based ideas",
+        reason: "You prefer plant-based meals – explore vegan-friendly recipes and snacks.",
+        target: "recipes",
+        dietTag: "Vegan"
+      });
+    } else if (diet.includes("keto") || goals.includes("low carb")) {
+      recs.push({
+        title: "Lower-carb options",
+        reason: "You indicated keto/low carb – look for higher-fat, lower-carb meals.",
+        target: "recipes",
+        dietTag: "Keto"
+      });
+    } else {
+      recs.push({
+        title: "Mediterranean-style meals",
+        reason: "Balanced meals with healthy fats and fibre support most training goals.",
+        target: "recipes",
+        dietTag: "Mediterranean"
+      });
+    }
+
+    if (goals.includes("performance") || goals.includes("muscle")) {
+      recs.push({
+        title: "Higher-protein choices",
+        reason: "For strength and performance, prioritise protein in each meal.",
+        target: "recipes"
+      });
+    } else if (goals.includes("sleep") || goals.includes("stress")) {
+      recs.push({
+        title: "Evening-friendly meals",
+        reason: "Lighter dinners and balanced blood sugar can support sleep and mood.",
+        target: "recipes"
+      });
+    }
+
+    return recs;
+  }, [onboarding]);
 
   if (!user) {
     return (
@@ -223,6 +375,89 @@ const ProfileDashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        {onboarding && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Dumbbell className="h-5 w-5" />
+                Recommended Exercises
+              </CardTitle>
+              <CardDescription>
+                Suggestions based on what you shared in your questionnaire.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {exerciseRecommendations.map((rec, index) => (
+                <div
+                  key={`${rec.id}-${index}`}
+                  className="flex items-start justify-between gap-4 p-4 border border-border rounded-lg hover:border-primary/50 transition-colors"
+                >
+                  <div className="space-y-1">
+                    <h4 className="font-semibold">{rec.title}</h4>
+                    <p className="text-sm text-muted-foreground">{rec.reason}</p>
+                  </div>
+                  {rec.target === "modules" && (
+                    <Button
+                      size="sm"
+                      onClick={() => navigate(`/modules/${rec.id}`)}
+                    >
+                      Open module
+                    </Button>
+                  )}
+                  {rec.target === "exercises" && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigate("/exercises")}
+                    >
+                      Choose exercises
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {onboarding && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ChefHat className="h-5 w-5" />
+                Recommended Nutrition
+              </CardTitle>
+              <CardDescription>
+                Diet ideas matched to your preferences and goals.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {dietRecommendations.map((rec, index) => (
+                <div
+                  key={`${rec.title}-${index}`}
+                  className="flex items-start justify-between gap-4 p-4 border border-border rounded-lg hover:border-secondary/50 transition-colors"
+                >
+                  <div className="space-y-1">
+                    <h4 className="font-semibold">{rec.title}</h4>
+                    <p className="text-sm text-muted-foreground">{rec.reason}</p>
+                    {rec.dietTag && (
+                      <Badge variant="outline" className="mt-1 text-xs">
+                        {rec.dietTag}
+                      </Badge>
+                    )}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigate("/recipes")}
+                  >
+                    Open recipes
+                  </Button>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* Workout Combinations */}

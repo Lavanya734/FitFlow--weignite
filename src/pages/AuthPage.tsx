@@ -15,8 +15,13 @@ const AuthPage = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await authService.login(loginData.email, loginData.password);
-      window.location.href = '/profile';
+      const result = await authService.login(loginData.email, loginData.password);
+      const user = result.user;
+      const suffix = user ? `_${user.id}` : "";
+      const completedKey = `fitflow_onboarding_completed${suffix}`;
+      const onboardingCompleted =
+        localStorage.getItem(completedKey) === "true";
+      window.location.href = onboardingCompleted ? "/profile" : "/onboarding";
     } catch (error: any) {
       alert(error.message);
     }

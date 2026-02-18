@@ -1,10 +1,32 @@
+import { useEffect, useState } from "react";
 import { Dumbbell } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { authService } from "../services/authService";
 
 
 const Header = () => {
   const location = useLocation();
+  const [showMyCycle, setShowMyCycle] = useState(false);
+
+  useEffect(() => {
+    try {
+      const user = authService.getUser();
+      if (!user) {
+        setShowMyCycle(false);
+        return;
+      }
+      const key = `fitflow_onboarding_${user.id}`;
+      const raw = localStorage.getItem(key);
+      if (!raw) {
+        setShowMyCycle(false);
+        return;
+      }
+      const data = JSON.parse(raw) as { gender?: string };
+      setShowMyCycle(data.gender === "female");
+    } catch {
+      setShowMyCycle(false);
+    }
+  }, []);
 
   const isActive = (path: string) => location.pathname === path;
   const [isDark, setIsDark] = useState(false);
@@ -64,7 +86,14 @@ const Header = () => {
             to="/profile"
             className={`transition-colors ${isActive('/profile') ? 'text-primary font-medium' : 'text-foreground hover:text-primary'}`}
           >
+          
             Profile
+          </Link>
+          <Link
+            to="/my-cycle"
+            className={`transition-colors ${isActive('/my-cycle') ? 'text-primary font-medium' : 'text-foreground hover:text-primary'}`}
+          >
+            My Cycle
           </Link>
           <Link
             to="/auth"
@@ -72,6 +101,7 @@ const Header = () => {
           >
             Login
           </Link>
+          
           <button
             onClick={toggleTheme}
             className="px-3 py-1.5 rounded-lg border border-border text-sm hover:bg-muted transition"
